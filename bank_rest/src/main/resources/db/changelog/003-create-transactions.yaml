@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-transactions
+      author: your-name
+      changes:
+        - createTable:
+            tableName: transactions
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: transaction_id
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: amount
+                  type: NUMERIC(38, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: commission
+                  type: NUMERIC(38, 2)
+                  defaultValue: 0.00
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: PENDING
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: from_user_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_transactions_from_user
+                    references: users(id)
+                    deleteCascade: false
+              - column:
+                  name: to_user_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_transactions_to_user
+                    references: users(id)
+                    deleteCascade: false
+              - column:
+                  name: from_card_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_transactions_from_card
+                    references: cards(id)
+                    deleteCascade: false
+              - column:
+                  name: to_card_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_transactions_to_card
+                    references: cards(id)
+                    deleteCascade: false

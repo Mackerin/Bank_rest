@@ -1,0 +1,208 @@
+# ====================
+# SERVER CONFIGURATION
+# ====================
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# ====================
+# SPRING CONFIGURATION
+# ====================
+spring:
+  # DATABASE CONFIGURATION
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bankcards_db
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # JPA CONFIGURATION
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        connection:
+          provider_disables_autocommit: true
+        generate_statistics: false
+
+  # LIQUIBASE CONFIGURATION
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+    drop-first: false
+
+  # SQL INITIALIZATION
+  sql:
+    init:
+      mode: never
+
+  # SECURITY CONFIGURATION
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ""
+
+# ====================
+# APPLICATION CONFIGURATION
+# ====================
+app:
+  # JWT SETTINGS
+  jwt:
+    secret: "mySuperSecretKeyForJWTGenerationInProductionChangeThisWithAtLeast32Characters"
+    expiration: 86400000
+    issuer: "bank-cards-app"
+
+  # ENCRYPTION SETTINGS
+  encryption:
+    secret-key: "bankcards2024secretkey12345678901234567890"
+
+  # BANK BUSINESS LOGIC SETTINGS
+  bank:
+    transfer-commission-rate: 0.01
+    default-currency: RUB
+    credit-card-limit: 50000.0
+    max-cards-per-user: 5
+
+  # CARD SETTINGS
+  card:
+    expiry-years: 4
+
+  # SECURITY SETTINGS
+  security:
+    password-strength: medium
+    max-login-attempts: 5
+    account-lock-duration: 900000
+
+  # CORS CONFIGURATION
+  cors:
+    allowed-origins: "http://localhost:3000,http://localhost:8080"
+    allowed-methods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    allowed-headers: "*"
+    exposed-headers: "Authorization,X-Total-Count"
+    allow-credentials: true
+    max-age: 3600
+
+# ====================
+# LOGGING CONFIGURATION
+# ====================
+logging:
+  level:
+    com.example.bankcards: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.web: INFO
+    org.hibernate.validator: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+  file:
+    name: logs/bankcards-app.log
+    max-size: 10MB
+    max-history: 30
+
+# ====================
+# SPRINGDOC OPENAPI CONFIGURATION (SWAGGER)
+# ====================
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    try-it-out-enabled: true
+    filter: true
+  show-actuator: false
+  cache:
+    disabled: true
+  info:
+    title: "Bank Cards Management API"
+    description: "REST API для управления банковскими картами и переводами"
+    version: "1.0.0"
+    contact:
+      name: "Bank Cards Team"
+      email: "support@bankcards.com"
+
+# ====================
+# DEVELOPMENT PROFILE
+# ====================
+---
+spring:
+  config:
+    activate:
+      on-profile: "dev"
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bankcards_dev
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.example.bankcards: DEBUG
+    org.springframework.security: DEBUG
+
+app:
+  jwt:
+    secret: "dev-jwt-secret-key-for-development-only-change-in-production"
+  encryption:
+    secret-key: "dev-encryption-key-for-development-only-32chars"
+
+# ====================
+# PRODUCTION PROFILE
+# ====================
+---
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:bankcards_prod}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:}
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.example.bankcards: WARN
+    org.springframework.security: WARN
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:}
+  encryption:
+    secret-key: ${ENCRYPTION_SECRET:}
+
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
